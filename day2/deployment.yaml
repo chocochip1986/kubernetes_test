@@ -1,0 +1,46 @@
+#mandatory
+apiVersion: apps/v1
+#mandatory
+kind: Deployment
+
+#mandatory
+metadata:
+  #mandatory
+  name: fortune-deployment
+  #optional. If not value, it'll go to default namespace
+  namespace: myns2
+
+#mandatory
+spec:
+  replicas: 2
+  #selector key tells kubectl what pod to deploy based on the labels it matches. In this case, we use the same label name as the 
+  #pod called fortune-pod. If no version is specified, not sure how many of each version will be created.
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: fortune-pod
+      app.kubernetes.io/version: "v1"
+  #The template is actual the pod's yaml file details from the metadata to the spec. YOu can copy it out and paste here if you have it in a separate yaml
+  template:
+    metadata: 
+      name: fortune-pod
+      labels:
+        #app.kubernetes.io/name or simply name is a label
+        app.kubernetes.io/name: fortune-pod
+        #for some reason, version value must be in double quotes, else tio error
+        app.kubernetes.io/version: "v1"
+        owner: engineering
+    spec:
+      containers:
+        #the '-' = array of arguments
+      - name: fortune
+        #This allows kubernetes to pull the Docker image from the official DockerHub. You can specify that location else where but it has to be explicit
+        image: chocolatechip/fortune
+        imagePullPolicy: Always
+        env:
+          #We expose this environment variable named APP_PORT because we know that that is the name of the variable in our docker image chocolatechip/fortune
+        - name: APP_PORT
+          value: "3000"
+        ports:
+          #name of the port we are exposing
+        - name: fortune-port
+          containerPort: 3000

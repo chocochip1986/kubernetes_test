@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: app-deployment
+  namespace: myns3
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: app-pod
+      app.kubernetes.io/version: "v5"
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      name: app-pod
+      labels:
+        app.kubernetes.io/name: app-pod
+        app.kubernetes.io/version: "v5"
+    spec:
+      containers:
+      - name: app-container
+        image: stackupiss/bgg-app:v1
+        imagePullPolicy: Always
+        env:
+        - name: BGG_DB_HOST
+          value: "bgg-db-svc.myns3.svc.cluster.local"
+        - name: APP_PORT
+          value: "3000"
+        ports:
+        - name: app-port
+          containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: app-db-svc
+  namespace: myns3
+
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: app-pod
+  ports:
+  #targetPort is the port in the container  
+  - name: app-port-svc
+  #this has to be port 80 for a loadbalancer service
+    port: 80
+    targetPort: app-port

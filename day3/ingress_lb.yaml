@@ -1,0 +1,25 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+
+metadata:
+  name: ingress-lb
+  namespace: myns3
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+
+spec:
+  backend:
+    serviceName: app-db-svc2
+    servicePort: 3001
+  rules:
+  - http:
+      paths: 
+      - path: /foo
+        backend:
+          serviceName: app-db-svc2
+          servicePort: 3001
+      - path: /bar
+        backend:
+          serviceName: app-db-svc1
+          servicePort: 3000

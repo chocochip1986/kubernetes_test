@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  #Rmb we need to refer to this name.
+  name: bgg-db-svc
+  namespace: myns3
+
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: database-pod
+  ports:
+  #targetPort is the port in the container  
+  - name: mysql-port-svc
+    port: 3306
+    targetPort: database-port

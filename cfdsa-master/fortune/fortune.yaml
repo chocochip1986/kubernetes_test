@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+
+metadata:
+  #Name of the pod for easy reference
+  name: fortune-pod
+  labels: 
+    #app.kubernetes.io/name or simply name is a label
+    app.kubernetes.io/name: fortune-pod
+    #for some reason, version value must be in double quotes, else tio error
+    app.kubernetes.io/version: "v1"
+    owner: engineering
+
+spec:
+  containers:
+    #the '-' = array of arguments
+  - name: fortune
+    #This allows kubernetes to pull the Docker image from the official DockerHub. You can specify that location else where but it has to be explicit
+    image: chocolatechip/fortune
+    imagePullPolicy: Always
+    env:
+      #We expose this environment variable named APP_PORT because we know that that is the name of the variable in our docker image chocolatechip/fortune
+    - name: APP_PORT
+      value: "3000"
+    ports:
+      #name of the port we are exposing
+    - name: fortune-port
+      containerPort: 3000
