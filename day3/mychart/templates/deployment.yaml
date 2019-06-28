@@ -1,52 +1,92 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "mychart.fullname" . }}
-  labels:
-{{ include "mychart.labels" . | indent 4 }}
+  name: {{ .Values.deployment.appDeploymentName1 }}
+  namespace: {{ .Values.namespace }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "mychart.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/name: {{ .Values.appPod.appPodName }}
+      app.kubernetes.io/version: {{ quote .Values.appPod.appPodVersion1 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "mychart.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/name: {{ .Values.appPod.appPodName }}
+        app.kubernetes.io/version: {{ quote .Values.appPod.appPodVersion1 }}
     spec:
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        - name: {{ .Values.appContainer.appContainerName }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag1 }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-    {{- with .Values.affinity }}
-      affinity:
+          requests:
+            cpu: 100m
+            memory: 16M
+          limits:
+            memory: 32M
+          env:
+          - name: BGG_DB_HOST
+            value: "bgg-db-svc.myns3.svc.cluster.local"
+          - name: APP_PORT
+            value: "3000"
+          ports:
+          - name: app-port1
+            containerPort: 3000
+---
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: {{ .Values.deployment.appDeploymentName2 }}
+  namespace: {{ .Values.namespace }}
+
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ .Values.appPod.appPodName }}
+      app.kubernetes.io/version: {{ quote .Values.appPod.appPodVersion2 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      name: app-pod
+      labels:
+        app.kubernetes.io/name: {{ .Values.appPod.appPodName }}
+        app.kubernetes.io/version: {{ quote .Values.appPod.appPodVersion2 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-    {{- end }}
+      containers:
+      - name: {{ .Values.appContainer.appContainerName }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag2 }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        resources:
+          requests:
+            cpu: 100m
+            memory: 16M
+          limits:
+            memory: 32M
+        env:
+        - name: BGG_DB_HOST
+          value: "bgg-db-svc.myns3.svc.cluster.local"
+        - name: APP_PORT
+          value: "3000"
+        ports:
+        - name: app-port2
+          containerPort: 3000
