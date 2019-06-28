@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: app-db-svc1
+  namespace: myns3
+
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: app-pod
+    app.kubernetes.io/version: "v1"
+  ports:
+  #targetPort is the port in the container  
+  - name: app-port-svc1
+  #this has to be port 80 for a loadbalancer service
+    port: 5000
+    targetPort: app-port1

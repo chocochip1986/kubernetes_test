@@ -6,7 +6,7 @@ metadata:
   namespace: myns3
 
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app.kubernetes.io/name: app-pod

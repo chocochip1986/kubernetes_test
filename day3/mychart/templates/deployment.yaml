@@ -16,6 +16,7 @@ spec:
       maxUnavailable: 1
   template:
     metadata:
+      name: {{ .Values.appPod.appPodName }}
       labels:
         app.kubernetes.io/name: {{ .Values.appPod.appPodName }}
         app.kubernetes.io/version: {{ quote .Values.appPod.appPodVersion1 }}
@@ -36,7 +37,7 @@ spec:
             memory: 32M
           env:
           - name: BGG_DB_HOST
-            value: "bgg-db-svc.myns3.svc.cluster.local"
+            value: "bgg-db-svc.{{ .Values.namespace }}.svc.cluster.local"
           - name: APP_PORT
             value: "3000"
           ports:
@@ -63,7 +64,7 @@ spec:
       maxUnavailable: 1
   template:
     metadata:
-      name: app-pod
+      name: {{ .Values.appPod.appPodName }}
       labels:
         app.kubernetes.io/name: {{ .Values.appPod.appPodName }}
         app.kubernetes.io/version: {{ quote .Values.appPod.appPodVersion2 }}
@@ -84,7 +85,7 @@ spec:
             memory: 32M
         env:
         - name: BGG_DB_HOST
-          value: "bgg-db-svc.myns3.svc.cluster.local"
+          value: "bgg-db-svc.{{ .Values.namespace }}.svc.cluster.local"
         - name: APP_PORT
           value: "3000"
         ports:

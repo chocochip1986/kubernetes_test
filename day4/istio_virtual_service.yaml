@@ -1,0 +1,49 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+
+metadata:
+   name: weather-vs
+   namespace:  myns3
+
+spec:
+  hosts:
+  - "*"
+  
+  gateways:
+  - weather-gateway
+  
+  http:
+  - match:
+    - uri:
+        exact: /
+    route:
+    - destination:
+        host: app-db-svc1
+        port: 
+          number: 5000
+    rewrite:
+      uri: /
+  - match:
+    - uri:
+        exact: /weather
+    route:
+    - destination:
+        host: app-db-svc1
+        subset: leastconn
+        port: 
+          number: 5000
+    rewrite:
+      uri: /
+  - match:
+    - uri:
+        prefix: /weather/
+    route:
+    - destination:
+        host: app-db-svc1
+        port: 
+          number: 5000
+    corsPolicy:
+      allowOrigin:
+        - "*"
+      allowMethods:
+        - GET
